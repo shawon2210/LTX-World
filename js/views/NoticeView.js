@@ -1,47 +1,29 @@
-/**
+﻿/**
  * NoticeView.js
- * Encapsulates the screen reader live status region, error alert banners, and retry handler.
+ * Polite live region for screen-reader announcements and error alerts.
  */
-export const NoticeView = {
-  statusLive: document.getElementById('status-live'),
-  notice: document.getElementById('notice'),
-  noticeMsg: document.getElementById('notice-msg'),
-  btnRetry: document.getElementById('btn-retry'),
-  lastRetryCallback: null,
+export class NoticeView {
+  constructor() {
+    this.liveRegion = null;
+  }
 
-  announce(message) {
-    if (this.statusLive) {
-      this.statusLive.textContent = message;
-    }
-  },
-
-  showError(message, retryCallback) {
-    if (this.noticeMsg) this.noticeMsg.textContent = message;
-    if (this.notice) {
-      this.notice.classList.add('visible');
-      this.notice.setAttribute('aria-hidden', 'false');
-    }
-    this.lastRetryCallback = retryCallback;
-    this.announce(`Error: ${message}`);
-  },
-
-  hideNotice() {
-    if (this.notice) {
-      this.notice.classList.remove('visible');
-      this.notice.setAttribute('aria-hidden', 'true');
-    }
-  },
-
-  init(onRetry) {
-    if (this.btnRetry) {
-      this.btnRetry.addEventListener('click', () => {
-        this.hideNotice();
-        if (typeof this.lastRetryCallback === 'function') {
-          this.lastRetryCallback();
-        } else if (typeof onRetry === 'function') {
-          onRetry();
-        }
-      });
+  init() {
+    this.liveRegion = document.getElementById('aria-live-status');
+    if (!this.liveRegion) {
+      this.liveRegion = document.createElement('div');
+      this.liveRegion.id = 'aria-live-status';
+      this.liveRegion.setAttribute('aria-live', 'polite');
+      this.liveRegion.setAttribute('aria-atomic', 'true');
+      this.liveRegion.className = 'sr-only';
+      document.body.appendChild(this.liveRegion);
     }
   }
-};
+
+  announce(message, isError) {
+    if (!this.liveRegion) return;
+    this.liveRegion.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+    this.liveRegion.textContent = '';
+    var self = this;
+    requestAnimationFrame(function() { self.liveRegion.textContent = message; });
+  }
+}

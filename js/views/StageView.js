@@ -1,50 +1,40 @@
-/**
+﻿/**
  * StageView.js
- * Encapsulates the stage container, 8 persistent video DOM elements, and the hero title animation.
+ * Manages 8 persistent video DOM elements, active video switching, and hero title visibility.
  */
-export const StageView = {
-  stage: document.getElementById('stage'),
-  videos: {
-    'clothing-fwd': document.getElementById('vid-clothing-fwd'),
-    'clothing-rev': document.getElementById('vid-clothing-rev'),
-    'scene-fwd': document.getElementById('vid-scene-fwd'),
-    'scene-rev': document.getElementById('vid-scene-rev'),
-    'lighting-fwd': document.getElementById('vid-lighting-fwd'),
-    'lighting-rev': document.getElementById('vid-lighting-rev'),
-    'cast-fwd': document.getElementById('vid-cast-fwd'),
-    'cast-rev': document.getElementById('vid-cast-rev')
-  },
-  currentVisibleVideo: null,
+export class StageView {
+  constructor() {
+    this.stage = null;
+    this.allVideos = [];
+    this.activeVideo = null;
+  }
 
   init() {
-    this.currentVisibleVideo = this.videos['clothing-fwd'];
-    if (this.currentVisibleVideo) {
-      this.currentVisibleVideo.currentTime = 0;
-      this.currentVisibleVideo.pause();
-    }
-  },
+    this.stage = document.getElementById('stage');
+    this.allVideos = Array.prototype.slice.call(document.querySelectorAll('.media'));
+    var active = document.querySelector('.media.active');
+    this.activeVideo = active || this.allVideos[0] || null;
+  }
 
-  getVideoById(id) {
-    return document.getElementById(id);
-  },
+  getVideo(branchKey, direction) {
+    return document.getElementById('vid-' + branchKey + '-' + direction);
+  }
 
-  setActiveVideo(targetVideo) {
-    if (this.currentVisibleVideo && this.currentVisibleVideo !== targetVideo) {
-      this.currentVisibleVideo.classList.remove('active');
+  showVideo(branchKey, direction) {
+    var target = this.getVideo(branchKey, direction);
+    if (!target) return;
+    if (this.activeVideo && this.activeVideo !== target) {
+      this.activeVideo.classList.remove('active');
     }
-    targetVideo.classList.add('active');
-    this.currentVisibleVideo = targetVideo;
-  },
+    target.classList.add('active');
+    this.activeVideo = target;
+  }
 
   hideTitle() {
     if (this.stage) this.stage.classList.add('title-hidden');
-  },
+  }
 
   showTitle() {
     if (this.stage) this.stage.classList.remove('title-hidden');
-  },
-
-  getCurrentVisibleVideo() {
-    return this.currentVisibleVideo;
   }
-};
+}

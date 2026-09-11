@@ -1,216 +1,232 @@
-/**
+﻿/**
  * PlayerController.js
- * Controls the playback lifecycle, video transitions, first-frame decode callbacks,
- * timeupdate hold guards, and state synchronization with Views and Models.
+ * Core playback state machine: handles branch selection, forward/reverse transitions,
+ * seam-safe first-frame decode (requestVideoFrameCallback), timeupdate hold guards,
+ * capsule animation, and Reset lifecycle.
  */
-
 export class PlayerController {
   /**
-   * @param {import('../models/BranchesModel.js').BranchesModel} branchesModel 
-   * @param {import('../views/StageView.js').StageView} stageView 
-   * @param {import('../views/ControllerView.js').ControllerView} controllerView 
-   * @param {import('../views/NoticeView.js').NoticeView} noticeView 
+   * @param {import('../models/BranchesModel.js').BranchesModel} model
+   * @param {import('../views/StageView.js').StageView}          stageView
+   * @param {import('../views/ControllerView.js').ControllerView} controllerView
+   * @param {import('../views/NoticeView.js').NoticeView}         noticeView
    */
-  constructor(branchesModel, stageView, controllerView, noticeView) {
-    this.model = branchesModel;
-    this.stageView = stageView;
+  constructor(model, stageView, controllerView, noticeView) {
+    this.model          = model;
+    this.stageView      = stageView;
     this.controllerView = controllerView;
-    this.noticeView = noticeView;
-    this.onStateChange = null;
+    this.noticeView     = noticeView;
+    this.onStateChange  = null; // optional external hook
   }
 
   init() {
     this.stageView.init();
     this.controllerView.init();
 
-    // Bind controller button clicks
-    const btns = this.controllerView.getBranchButtons();
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const branchKey = btn.dataset.branch;
-        this.selectBranch(branchKey);
+    var self = this;
+
+    // Bind each branch button
+    var btns = this.controllerView.getBranchButtons();
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        // If this button is showing 'Reset', do a reverse
+        if (btn.classList.contains('is-reset')) {
+          self._doReverse();
+          return;
+        }
+        var branchKey = btn.dataset.branch;
+        self._handleBranchClick(branchKey, btn);
       });
     });
 
-    const resetBtn = this.controllerView.getResetButton();
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        this.resetToMain();
-      });
-    }
-
-    // Set initial active state on buttons
-    this.updateControlsUI();
+    // Set initial capsule
+    this.controllerView.updateCapsulePosition('base');
   }
 
+  // ── Public helpers ──────────────────────────────────────────────────────
+
+  /** Keyboard shortcut: select by branch key */
   selectBranch(branchKey) {
     if (this.model.isBusy()) return;
-    if (this.model.isCurrent(branchKey)) return;
 
-    if (this.model.currentBranch === 'main') {
-      this.playForward(branchKey);
-    } else {
-      this.playReverse(() => {
-        if (branchKey !== 'main') {
-          this.playForward(branchKey);
-        }
-      });
+    var btn = null;
+    var btns = this.controllerView.getBranchButtons();
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].dataset.branch === branchKey) { btn = btns[i]; break; }
     }
-  }
+    if (!btn) return;
 
-  resetToMain() {
-    if (this.model.isBusy() || this.model.currentBranch === 'main') return;
-    this.playReverse();
-  }
-
-  playForward(targetBranch) {
-    if (this.model.isBusy()) return;
-
-    this.model.isTransitioning = true;
-    this.controllerView.setDisabled(true);
-
-    const fwdVideo = this.stageView.getVideo(targetBranch, 'fwd');
-    const fwdConfig = this.model.getConfig(targetBranch, 'fwd');
-    const holdGuard = fwdConfig ? fwdConfig.holdGuard : 0.08;
-
-    this.prepareAndPlay(fwdVideo, () => {
-      this.stageView.showVideo(targetBranch, 'fwd');
-      this.stageView.hideTitle();
-      this.model.currentBranch = targetBranch;
-      this.updateControlsUI();
-
-      this.monitorAndHold(fwdVideo, holdGuard, () => {
-        this.model.isTransitioning = false;
-        this.controllerView.setDisabled(false);
-        this.controllerView.pulseReset();
-        this.noticeView.announce(targetBranch.toUpperCase() + ' transition complete. You can reset or select another branch.');
-        if (this.onStateChange) this.onStateChange(this.model.getState());
-      });
-    }, (err) => {
-      console.error('[PlayerController] Forward playback error (' + targetBranch + '):', err);
-      this.model.isTransitioning = false;
-      this.controllerView.setDisabled(false);
-      this.noticeView.announce('Playback error on ' + targetBranch + '. Please try again.', true);
-    });
-  }
-
-  playReverse(onComplete) {
-    if (this.model.isBusy() || this.model.currentBranch === 'main') return;
-
-    this.model.isTransitioning = true;
-    this.controllerView.setDisabled(true);
-    const branch = this.model.currentBranch;
-
-    const revVideo = this.stageView.getVideo(branch, 'rev');
-    const revConfig = this.model.getConfig(branch, 'rev');
-    const holdGuard = revConfig ? revConfig.holdGuard : 0.08;
-
-    this.prepareAndPlay(revVideo, () => {
-      this.stageView.showVideo(branch, 'rev');
-      this.model.currentBranch = 'main';
-      this.updateControlsUI();
-
-      const duration = revVideo.duration || 3.0;
-      const titleDelay = Math.min(duration * 0.12, 0.9) * 1000;
-      setTimeout(() => {
-        if (this.model.currentBranch === 'main') {
-          this.stageView.showTitle();
-        }
-      }, titleDelay);
-
-      this.monitorAndHold(revVideo, holdGuard, () => {
-        this.model.isTransitioning = false;
-        this.controllerView.setDisabled(false);
-        this.noticeView.announce('Scene reset to default baseline.');
-        if (this.onStateChange) this.onStateChange(this.model.getState());
-        if (typeof onComplete === 'function') {
-          onComplete();
-        }
-      });
-    }, (err) => {
-      console.error('[PlayerController] Reverse playback error (' + branch + '):', err);
-      this.model.isTransitioning = false;
-      this.controllerView.setDisabled(false);
-      this.noticeView.announce('Reset error on ' + branch + '.', true);
-    });
-  }
-
-  prepareAndPlay(videoEl, onFirstFrame, onError) {
-    if (!videoEl) {
-      if (onError) onError(new Error('Video element not found'));
+    if (btn.classList.contains('is-reset')) {
+      this._doReverse();
       return;
     }
+    this._handleBranchClick(branchKey, btn);
+  }
+
+  /** Keyboard shortcut: reset to base */
+  resetToMain() {
+    if (this.model.isBusy() || this.model.isBase()) return;
+    this._doReverse();
+  }
+
+  // ── Private ─────────────────────────────────────────────────────────────
+
+  _handleBranchClick(branchKey, btn) {
+    if (this.model.isBusy()) return;
+    if (this.model.isCurrent(branchKey)) return; // already there
+
+    if (this.model.isBase()) {
+      this._doForward(branchKey, btn);
+    } else {
+      // Cross-branch: reverse first, then forward
+      var self = this;
+      this._doReverse(function() {
+        if (branchKey !== 'base') {
+          self._doForward(branchKey, btn);
+        }
+      });
+    }
+  }
+
+  _doForward(branchKey, btn) {
+    var branch = this.model.getBranch(branchKey);
+    if (!branch) return;
+
+    var myToken = this.model.nextToken();
+    this.model.setTransitioning(true);
+    this.controllerView.setDisabled(true);
+
+    var video     = this.stageView.getVideo(branchKey, 'fwd');
+    var holdGuard = branch.fwdHoldGuard;
+    var self      = this;
+
+    this._prepareAndPlay(video, function() {
+      if (self.model.getToken() !== myToken) return; // stale
+
+      self.stageView.showVideo(branchKey, 'fwd');
+      self.stageView.hideTitle();
+      self.model.setState(branchKey);
+      self.controllerView.updateActiveState(branchKey);
+      self.controllerView.updateCapsulePosition(branchKey);
+
+      self._monitorAndHold(video, holdGuard, function() {
+        if (self.model.getToken() !== myToken) return;
+        self.model.setTransitioning(false);
+        self.controllerView.pulseReset(btn);
+        self.noticeView.announce(branchKey.toUpperCase() + ' applied. Click Reset to return.');
+        if (self.onStateChange) self.onStateChange(branchKey);
+      });
+    }, function(err) {
+      console.warn('[Player] Forward error ('+branchKey+')', err);
+      self.model.setTransitioning(false);
+      self.controllerView.setDisabled(false);
+      self.noticeView.announce('Playback error on ' + branchKey, true);
+    });
+  }
+
+  _doReverse(onComplete) {
+    var branchKey = this.model.currentState;
+    var branch    = this.model.getBranch(branchKey);
+    if (!branch) { if (onComplete) onComplete(); return; }
+
+    var myToken = this.model.nextToken();
+    this.model.setTransitioning(true);
+
+    var video     = this.stageView.getVideo(branchKey, 'rev');
+    var holdGuard = branch.revHoldGuard;
+    var self      = this;
+
+    // Restore controller UI immediately so it looks responsive
+    this.controllerView.restoreFromReset();
+
+    this._prepareAndPlay(video, function() {
+      if (self.model.getToken() !== myToken) return;
+
+      self.stageView.showVideo(branchKey, 'rev');
+      self.model.setState('base');
+      self.controllerView.updateActiveState('base');
+      self.controllerView.updateCapsulePosition('base');
+
+      // Fade title back in after a small delay (12% of duration, max 0.9s)
+      var dur        = (video.duration && isFinite(video.duration)) ? video.duration : 2.5;
+      var titleDelay = Math.min(dur * 0.12, 0.9) * 1000;
+      setTimeout(function() {
+        if (self.model.currentState === 'base') self.stageView.showTitle();
+      }, titleDelay);
+
+      self._monitorAndHold(video, holdGuard, function() {
+        if (self.model.getToken() !== myToken) return;
+        self.model.setTransitioning(false);
+        self.noticeView.announce('Scene reset to base.');
+        if (self.onStateChange) self.onStateChange('base');
+        if (typeof onComplete === 'function') onComplete();
+      });
+    }, function(err) {
+      console.warn('[Player] Reverse error ('+branchKey+')', err);
+      self.model.setTransitioning(false);
+      self.noticeView.announce('Reset error', true);
+    });
+  }
+
+  /**
+   * Seek to 0, register first-frame callback, then play.
+   * Calls onFirstFrame() when the very first decoded frame is ready (seam-safe).
+   */
+  _prepareAndPlay(videoEl, onFirstFrame, onError) {
+    if (!videoEl) { if (onError) onError(new Error('Missing video element')); return; }
 
     videoEl.pause();
     videoEl.currentTime = 0;
 
-    let fired = false;
-    const trigger = () => {
+    var fired = false;
+    var trigger = function() {
       if (fired) return;
       fired = true;
-      if (onFirstFrame) onFirstFrame();
+      onFirstFrame();
     };
 
     if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
-      videoEl.requestVideoFrameCallback((now, metadata) => {
-        if (metadata && metadata.mediaTime <= 0.5 && videoEl.readyState >= 2) {
-          trigger();
-        } else {
-          requestAnimationFrame(trigger);
-        }
+      videoEl.requestVideoFrameCallback(function(now, meta) {
+        if (meta && meta.mediaTime <= 0.5 && videoEl.readyState >= 2) trigger();
+        else requestAnimationFrame(trigger);
       });
     } else {
-      const handlePlaying = () => {
-        videoEl.removeEventListener('playing', handlePlaying);
-        requestAnimationFrame(() => {
-          requestAnimationFrame(trigger);
-        });
-      };
-      videoEl.addEventListener('playing', handlePlaying, { once: true });
+      videoEl.addEventListener('playing', function handler() {
+        videoEl.removeEventListener('playing', handler);
+        requestAnimationFrame(function() { requestAnimationFrame(trigger); });
+      }, { once: true });
     }
 
-    const playPromise = videoEl.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(err => {
-        if (err.name !== 'AbortError') {
-          console.error('[PlayerController] Play failure:', err);
-          if (onError) onError(err);
-        }
+    var p = videoEl.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(function(e) {
+        if (e.name !== 'AbortError') { if (onError) onError(e); }
       });
     }
   }
 
-  monitorAndHold(videoEl, holdGuard, onHold) {
+  /**
+   * Watch timeupdate; pause and call onHold() when remaining time <= holdGuard.
+   */
+  _monitorAndHold(videoEl, holdGuard, onHold) {
     if (!videoEl) return;
+    var held = false;
 
-    let held = false;
-    const checkHold = () => {
+    var checkTime = function() {
       if (held) return;
-      if (videoEl.duration && (videoEl.duration - videoEl.currentTime <= holdGuard)) {
+      if (videoEl.duration && (videoEl.duration - videoEl.currentTime) <= holdGuard) {
         held = true;
         videoEl.pause();
-        videoEl.removeEventListener('timeupdate', checkHold);
-        videoEl.removeEventListener('ended', onEnd);
-        if (onHold) onHold();
+        videoEl.removeEventListener('timeupdate', checkTime);
+        onHold();
       }
     };
 
-    const onEnd = () => {
-      if (!held) {
-        held = true;
-        videoEl.pause();
-        videoEl.removeEventListener('timeupdate', checkHold);
-        videoEl.removeEventListener('ended', onEnd);
-        if (onHold) onHold();
-      }
+    var onEnded = function() {
+      if (!held) { held = true; videoEl.pause(); onHold(); }
     };
 
-    videoEl.addEventListener('timeupdate', checkHold);
-    videoEl.addEventListener('ended', onEnd, { once: true });
-  }
-
-  updateControlsUI() {
-    this.controllerView.updateActiveState(this.model.currentBranch);
-    this.controllerView.updateCapsulePosition();
+    videoEl.addEventListener('timeupdate', checkTime);
+    videoEl.addEventListener('ended', onEnded, { once: true });
   }
 }
