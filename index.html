@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LTX — The world model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/stage.css">
+  <link rel="stylesheet" href="css/controller.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 1. CINEMATIC WORLD MODEL HERO STAGE                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section class="stage" id="stage">
+    <!-- 8 Persistent Video Elements -->
+    <!-- Clothing: video-1 / video-1-reverse -->
+    <video id="vid-clothing-fwd" class="media active" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-1.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="vid-clothing-rev" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-1-reverse.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+
+    <!-- Scene: video-2 / video-2-reverse -->
+    <video id="vid-scene-fwd" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-2.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="vid-scene-rev" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-2-reverse.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+
+    <!-- Lighting: video-3 / video-3-reverse -->
+    <video id="vid-lighting-fwd" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-3.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="vid-lighting-rev" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-3-reverse.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+
+    <!-- Cast: video-4 / video-4-reverse -->
+    <video id="vid-cast-fwd" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-4.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="vid-cast-rev" class="media" src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/designs/video-4-reverse.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+
+    <!-- Hero Copy -->
+    <div class="hero">
+      <h1>
+        <span>The</span>
+        <span>world</span>
+        <span>model</span>
+      </h1>
+      <p>LTX builds open world models that give you full control, from production-grade video to systems that understand and operate in the physical world.</p>
+    </div>
+
+    <!-- Controller Bar -->
+    <div class="controller" id="controller" role="group" aria-label="Scene state controller">
+      <div class="track glass" id="track"></div>
+      <div class="capsule glass" id="capsule"></div>
+      <div class="cells" id="cells">
+        <div class="cell label-cell" data-index="0" aria-hidden="true">Select state &rarr;</div>
+        <button type="button" class="cell" data-index="1" data-branch="scene">Scene</button>
+        <button type="button" class="cell" data-index="2" data-branch="lighting">Lighting</button>
+        <button type="button" class="cell" data-index="3" data-branch="clothing">Clothing</button>
+        <button type="button" class="cell" data-index="4" data-branch="cast">Cast</button>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <a href="https://app.ltx.io/" class="logo-link" aria-label="LTX home">
+          <svg class="logo-svg" viewBox="0 0 75 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- L -->
+            <path fill="#ffffff" d="M0 2h6.5v22.5H22V30H0V2z"/>
+            <!-- T -->
+            <path fill="#ffffff" d="M26.5 2h21.5v5.5H40.5V30h-6.5V7.5H26.5V2z"/>
+            <!-- X -->
+            <path fill="#ffffff" d="M53.5 2h7.2l6.8 12.8L74.3 2h8.2L71.2 16l11.5 14h-7.2l-7.2-13.2L61.1 30h-7.6l10.3-14L53.5 2z"/>
+          </svg>
+        </a>
+        <div class="meta">
+          <span class="meta-item">LTX-2.5 is here</span>
+          <span class="meta-item meta-secondary">Smarter. Faster</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button type="button" class="btn-header-link" id="btn-open-shortcuts">⌨ Hotkeys</button>
+        <a href="#sandbox" class="btn-header-link">Studio & API</a>
+        <a href="#benchmarks" class="btn-header-link">Benchmarks</a>
+        <a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer" class="btn-try">Try now</a>
+      </div>
+    </header>
+
+    <!-- Floating HUD Quick Bar -->
+    <div class="hero-hud">
+      <button type="button" class="hud-pill" id="btn-open-specs">
+        <span class="dot"></span>
+        <span>LTX-2.5 DiT &bull; 5B Spatial Diffusion Model</span>
+      </button>
+
+      <a href="#innovations" class="hud-scroll-btn" aria-label="Scroll to discover features">
+        <span>Explore Model</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </a>
+
+      <button type="button" class="hud-pill" id="btn-open-api">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Developer SDK & Docs</span>
+      </button>
+    </div>
+
+    <!-- Status & Notice -->
+    <div id="status-live" class="sr-only" role="status" aria-live="polite">Ready</div>
+    <div id="notice" class="notice" role="alert" aria-hidden="true">
+      <span id="notice-msg">Video failed to load</span>
+      <button type="button" id="btn-retry">Retry</button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 2. CORE INNOVATIONS & CAPABILITIES                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="content-container" id="innovations">
+    <div class="section-header">
+      <div class="section-badge">Model Architecture</div>
+      <h2 class="section-title">Built for physical understanding</h2>
+      <p class="section-desc">LTX goes beyond next-token video prediction. It learns spatial geometry, object permanence, lighting reflection, and dynamic material physics.</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="feature-card">
+        <div>
+          <div class="card-icon">&#9670;</div>
+          <h3 class="card-title">3D World Consistency</h3>
+          <p class="card-text">Maintains rigorous multi-view depth and object permanence across complex cinematic camera movements with zero temporal jitter.</p>
+        </div>
+        <div class="card-meta">
+          <span>&bull; Full Camera Trajectory Tracking</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div>
+          <div class="card-icon">&#9688;</div>
+          <h3 class="card-title">Physical Simulation</h3>
+          <p class="card-text">Understands fluid flow, cloth dynamics, volumetric shadows, and realistic gravitational collision without requiring a CGI physics engine.</p>
+        </div>
+        <div class="card-meta">
+          <span>&bull; Real-time Material Physics</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div>
+          <div class="card-icon">&#9680;</div>
+          <h3 class="card-title">Zero-Shot Look Re-target</h3>
+          <p class="card-text">Seamlessly branch lighting conditions, character cast, clothing colorways, and background architectural scenes with complete identity preservation.</p>
+        </div>
+        <div class="card-meta">
+          <span>&bull; Independent Branch Conditioning</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div>
+          <div class="card-icon">&#9889;</div>
+          <h3 class="card-title">Sub-Second Inference</h3>
+          <p class="card-text">Engineered with custom KV caching and spatial DiT distillation for real-time video generation at production-ready 4K 60FPS fidelity.</p>
+        </div>
+        <div class="card-meta">
+          <span>&bull; &lt; 0.08s Token Latency</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- 3. INTERACTIVE GENERATIVE STUDIO & CODE SANDBOX           -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="section-header" id="sandbox">
+      <div class="section-badge">Interactive Playground</div>
+      <h2 class="section-title">Developer Studio & API Composer</h2>
+      <p class="section-desc">Compose multi-modal camera trajectories, character conditioning, and style branches in real-time. Generate ready-to-run code in 1 click.</p>
+    </div>
+
+    <div class="sandbox-container">
+      <div class="sandbox-grid">
+        <!-- Controls Column -->
+        <div class="sandbox-controls">
+          <div class="form-group">
+            <label class="form-label">
+              <span>Sample Prompt Presets</span>
+              <span style="color:var(--accent-cyan); font-size:12px;">Click to load</span>
+            </label>
+            <div class="preset-chips">
+              <button type="button" class="chip active" data-preset="fashion">High Fashion Runway</button>
+              <button type="button" class="chip" data-preset="cyberpunk">Neo-Tokyo Rain</button>
+              <button type="button" class="chip" data-preset="desert">Golden Hour Dunes</button>
+              <button type="button" class="chip" data-preset="space">Orbital Habitat</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sandbox-prompt">Prompt Conditioning</label>
+            <textarea id="sandbox-prompt" class="prompt-textarea" spellcheck="false">A centered model in luxury silk attire walking through brutalist architectural arches, high fashion dynamic lighting, photorealistic 8K render, physical cloth motion.</textarea>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-box">
+              <div class="form-label">
+                <span>Camera Dolly Zoom</span>
+                <span id="val-dolly">+1.2x</span>
+              </div>
+              <input type="range" id="slider-dolly" min="-2.0" max="2.0" step="0.1" value="1.2">
+            </div>
+
+            <div class="slider-box">
+              <div class="form-label">
+                <span>Motion Dynamics</span>
+                <span id="val-motion">0.85</span>
+              </div>
+              <input type="range" id="slider-motion" min="0.1" max="1.5" step="0.05" value="0.85">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px;">
+            <a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer" class="btn-try" style="width:100%; text-align:center; height:44px; font-size:15px; font-weight:600; background:#fff; color:#0b1a26;">Launch in LTX Studio &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Code Viewer Column -->
+        <div class="code-viewer">
+          <div class="code-header">
+            <div class="code-tabs">
+              <button type="button" class="code-tab active" data-lang="python">Python</button>
+              <button type="button" class="code-tab" data-lang="curl">cURL</button>
+              <button type="button" class="code-tab" data-lang="ts">TypeScript</button>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn-export-comfy" id="btn-export-comfy" title="Download ComfyUI Workflow JSON">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>ComfyUI .json</span>
+              </button>
+              <button type="button" class="btn-copy" id="btn-copy-code">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+          <div class="code-body" id="code-output"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- 4. BENCHMARKS & MODEL SPECIFICATIONS                      -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="section-header" id="benchmarks">
+      <div class="section-badge">Empirical Performance</div>
+      <h2 class="section-title">Benchmark Comparisons</h2>
+      <p class="section-desc">State-of-the-art visual consistency, latency efficiency, and GPU memory profile across open world generation benchmarks.</p>
+    </div>
+
+    <div class="specs-table-wrapper">
+      <table class="specs-table">
+        <thead>
+          <tr>
+            <th>Model Version</th>
+            <th>Architecture</th>
+            <th>Parameters</th>
+            <th>3D Consistency (FVD)</th>
+            <th>Latency (5s @ 1080p)</th>
+            <th>VRAM Footprint</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="highlight-col">LTX-2.5 (Latest)</td>
+            <td>Spatial-Temporal DiT</td>
+            <td>5.2 Billion</td>
+            <td class="highlight-col">142.4 (Best)</td>
+            <td class="highlight-col">2.08s</td>
+            <td>16 GB</td>
+          </tr>
+          <tr>
+            <td>LTX-1.0</td>
+            <td>DiT-XL</td>
+            <td>2.8 Billion</td>
+            <td>198.6</td>
+            <td>4.20s</td>
+            <td>24 GB</td>
+          </tr>
+          <tr>
+            <td>Standard Open Video</td>
+            <td>UNet-3D</td>
+            <td>3.5 Billion</td>
+            <td>280.1</td>
+            <td>12.50s</td>
+            <td>32 GB</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Interactive Latency & Hardware Calculator -->
+    <div class="calc-box">
+      <h3 style="font-size:18px; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+        <span style="color:var(--accent-cyan);">&#9889;</span>
+        <span>Interactive Latency & Hardware VRAM Estimator</span>
+      </h3>
+      <div class="calc-sliders">
+        <div>
+          <div class="form-label" style="font-size:13px;">
+            <span>Target Resolution</span>
+            <span id="calc-res-val" style="color:var(--accent-cyan);">1080p Full HD</span>
+          </div>
+          <input type="range" id="calc-res" min="1" max="4" value="2" step="1" style="width:100%; accent-color:var(--accent-cyan); margin-top:8px;">
+        </div>
+        <div>
+          <div class="form-label" style="font-size:13px;">
+            <span>Framerate</span>
+            <span id="calc-fps-val" style="color:var(--accent-cyan);">30 FPS</span>
+          </div>
+          <input type="range" id="calc-fps" min="1" max="3" value="2" step="1" style="width:100%; accent-color:var(--accent-cyan); margin-top:8px;">
+        </div>
+        <div>
+          <div class="form-label" style="font-size:13px;">
+            <span>Generation Duration</span>
+            <span id="calc-dur-val" style="color:var(--accent-cyan);">5.0s (150 frames)</span>
+          </div>
+          <input type="range" id="calc-dur" min="2" max="10" value="5" step="1" style="width:100%; accent-color:var(--accent-cyan); margin-top:8px;">
+        </div>
+      </div>
+      <div class="calc-results">
+        <div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Est. Inference Time</div>
+          <div id="calc-out-time" style="font-size:22px; font-weight:700; color:var(--accent-cyan); margin-top:4px;">2.08s</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">VRAM Footprint</div>
+          <div id="calc-out-vram" style="font-size:22px; font-weight:700; color:#fff; margin-top:4px;">14.2 GB</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; font-weight:700; letter-spacing:0.04em;">Recommended GPU</div>
+          <div id="calc-out-gpu" style="font-size:16px; font-weight:600; color:#4ade80; margin-top:6px;">RTX 4090 / A100</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- 5. ECOSYSTEM & DEVELOPER LINKS                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="section-header">
+      <div class="section-badge">Open Ecosystem</div>
+      <h2 class="section-title">Connect with LTX</h2>
+      <p class="section-desc">Join our growing open source community of researchers, developers, filmmakers, and digital artists building next-generation world models.</p>
+    </div>
+
+    <div class="ecosystem-grid">
+      <a href="https://github.com/Lightricks/LTX-Video" target="_blank" rel="noopener noreferrer" class="eco-link-card">
+        <div class="eco-card-top">
+          <div class="eco-icon">&#9733;</div>
+          <div class="eco-arrow">&nearr;</div>
+        </div>
+        <div>
+          <div class="eco-title">GitHub Repository</div>
+          <div class="eco-desc">Explore open source model weights, inference scripts, and DiT pipelines.</div>
+        </div>
+      </a>
+
+      <a href="https://huggingface.co/Lightricks" target="_blank" rel="noopener noreferrer" class="eco-link-card">
+        <div class="eco-card-top">
+          <div class="eco-icon">&#129303;</div>
+          <div class="eco-arrow">&nearr;</div>
+        </div>
+        <div>
+          <div class="eco-title">Hugging Face Weights</div>
+          <div class="eco-desc">Download checkpoints, ComfyUI nodes, LoRAs, and quantized GGUF weights.</div>
+        </div>
+      </a>
+
+      <a href="https://discord.gg/ltx" target="_blank" rel="noopener noreferrer" class="eco-link-card">
+        <div class="eco-card-top">
+          <div class="eco-icon">&#128172;</div>
+          <div class="eco-arrow">&nearr;</div>
+        </div>
+        <div>
+          <div class="eco-title">Discord Community</div>
+          <div class="eco-desc">Share generations, get developer help, and collaborate with core maintainers.</div>
+        </div>
+      </a>
+
+      <a href="https://arxiv.org/abs/2401.00000" target="_blank" rel="noopener noreferrer" class="eco-link-card">
+        <div class="eco-card-top">
+          <div class="eco-icon">&#128196;</div>
+          <div class="eco-arrow">&nearr;</div>
+        </div>
+        <div>
+          <div class="eco-title">Research Paper</div>
+          <div class="eco-desc">Read the technical publication detailing architecture, spatial attention, and training.</div>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 6. FOOTER                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer>
+    <div class="content-container" style="padding:0; margin-bottom:0;">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <svg class="logo-svg" viewBox="0 0 75 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#ffffff" d="M0 2h6.5v22.5H22V30H0V2z"/>
+            <path fill="#ffffff" d="M26.5 2h21.5v5.5H40.5V30h-6.5V7.5H26.5V2z"/>
+            <path fill="#ffffff" d="M53.5 2h7.2l6.8 12.8L74.3 2h8.2L71.2 16l11.5 14h-7.2l-7.2-13.2L61.1 30h-7.6l10.3-14L53.5 2z"/>
+          </svg>
+          <p>Open world modeling intelligence for real-time video synthesis, spatial physics understanding, and generative media production.</p>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Platform</div>
+          <ul class="footer-links">
+            <li><a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer">LTX Web Studio</a></li>
+            <li><a href="#sandbox">API Playground</a></li>
+            <li><a href="https://huggingface.co/Lightricks" target="_blank" rel="noopener noreferrer">Model Weights</a></li>
+            <li><a href="#benchmarks">Benchmarking</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Developers</div>
+          <ul class="footer-links">
+            <li><a href="https://github.com/Lightricks/LTX-Video" target="_blank" rel="noopener noreferrer">Python SDK</a></li>
+            <li><a href="https://github.com/Lightricks/LTX-Video" target="_blank" rel="noopener noreferrer">ComfyUI Integration</a></li>
+            <li><a href="https://arxiv.org/abs/2401.00000" target="_blank" rel="noopener noreferrer">ArXiv Paper</a></li>
+            <li><a href="https://discord.gg/ltx" target="_blank" rel="noopener noreferrer">Discord Server</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="https://www.lightricks.com/" target="_blank" rel="noopener noreferrer">About Lightricks</a></li>
+            <li><a href="https://x.com/Lightricks" target="_blank" rel="noopener noreferrer">Twitter / X</a></li>
+            <li><a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer">Try LTX Now</a></li>
+            <li><a href="#stage">Back to Top &uarr;</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Lightricks Ltd. All rights reserved.</div>
+        <div style="display:flex; gap:20px;">
+          <a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+          <a href="https://github.com/Lightricks/LTX-Video" target="_blank" rel="noopener noreferrer">Security</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 7. INTERACTIVE MODALS & TOASTS                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Model Specs Modal -->
+  <div class="modal-overlay" id="specs-modal">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="btn-close-specs" aria-label="Close modal">&times;</button>
+      <h3 style="font-size:24px; font-weight:700; margin-bottom:12px;">LTX-2.5 Architecture & Specs</h3>
+      <p style="color:rgba(255,255,255,0.7); font-size:15px; line-height:1.6; margin-bottom:24px;">
+        LTX-2.5 employs a high-throughput Spatial-Temporal Diffusion Transformer (DiT) conditioned on 3D geometric embeddings, text tokens, and trajectory vectors.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+        <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:14px; border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:12px; color:var(--accent-cyan); font-weight:700;">LATENCY</div>
+          <div style="font-size:22px; font-weight:700; margin-top:4px;">&lt; 0.08s / frame</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:14px; border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:12px; color:var(--accent-cyan); font-weight:700;">MAX RESOLUTION</div>
+          <div style="font-size:22px; font-weight:700; margin-top:4px;">4K Ultra HD (60 FPS)</div>
+        </div>
+      </div>
+      <a href="https://github.com/Lightricks/LTX-Video" target="_blank" rel="noopener noreferrer" class="btn-try" style="width:100%; text-align:center; height:44px; font-size:15px; background:#fff; color:#0b1a26;">View GitHub Implementation &rarr;</a>
+    </div>
+  </div>
+
+  <!-- API Quickstart Modal -->
+  <div class="modal-overlay" id="api-modal">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="btn-close-api" aria-label="Close modal">&times;</button>
+      <h3 style="font-size:24px; font-weight:700; margin-bottom:12px;">LTX Developer API Quickstart</h3>
+      <p style="color:rgba(255,255,255,0.7); font-size:15px; line-height:1.6; margin-bottom:20px;">
+        Install the official Python package and run your first world model generation:
+      </p>
+      <div style="background:#000; padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.15); font-family:monospace; font-size:13px; color:#4ade80; margin-bottom:24px;">
+        pip install ltx-video
+      </div>
+      <a href="https://app.ltx.io/" target="_blank" rel="noopener noreferrer" class="btn-try" style="width:100%; text-align:center; height:44px; font-size:15px; background:#fff; color:#0b1a26;">Get Free API Key on LTX Studio &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal-overlay" id="shortcuts-modal">
+    <div class="modal-box">
+      <button type="button" class="modal-close" id="btn-close-shortcuts" aria-label="Close modal">&times;</button>
+      <h3 style="font-size:24px; font-weight:700; margin-bottom:12px;">Keyboard Navigation Hotkeys</h3>
+      <p style="color:rgba(255,255,255,0.7); font-size:14px; line-height:1.6; margin-bottom:24px;">
+        Control the cinematic world model switcher without touching your mouse:
+      </p>
+      <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:24px;">
+        <div class="shortcut-row">
+          <span>Switch to Scene Branch</span>
+          <span class="kbd-badge">1</span>
+        </div>
+        <div class="shortcut-row">
+          <span>Switch to Lighting Branch</span>
+          <span class="kbd-badge">2</span>
+        </div>
+        <div class="shortcut-row">
+          <span>Switch to Clothing Branch</span>
+          <span class="kbd-badge">3</span>
+        </div>
+        <div class="shortcut-row">
+          <span>Switch to Cast Branch</span>
+          <span class="kbd-badge">4</span>
+        </div>
+        <div class="shortcut-row">
+          <span>Reset to Base Scene (when selected)</span>
+          <span class="kbd-badge">Space</span> or <span class="kbd-badge">R</span>
+        </div>
+        <div class="shortcut-row">
+          <span>Toggle Shortcuts Cheatsheet</span>
+          <span class="kbd-badge">?</span>
+        </div>
+      </div>
+      <button type="button" class="btn-try" id="btn-done-shortcuts" style="width:100%; text-align:center; height:42px; font-size:14px; background:#fff; color:#0b1a26;">Got It</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Code copied to clipboard!</div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 8. COMPLETE SCRIPT ENGINE                                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

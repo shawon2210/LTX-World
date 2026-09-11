@@ -1,0 +1,219 @@
+/* ─── RESPONSIVE RULES & MEDIA QUERIES ─── */
+@media (max-width: 1200px) {
+  .btn-header-link {
+    display: none;
+  }
+}
+
+@media (max-width: 1080px) {
+  header {
+    padding: calc(32px + env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) 28px max(28px, env(safe-area-inset-left));
+    gap: 18px;
+  }
+  .meta-secondary {
+    display: none;
+  }
+  .cell {
+    font-size: clamp(16px, 1.8vw, 21px);
+    padding: 0 8px;
+  }
+  .sandbox-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  header {
+    padding: calc(24px + env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 24px max(24px, env(safe-area-inset-left));
+  }
+  .cell {
+    font-size: clamp(17px, 2.5vw, 24px);
+  }
+  .hero-hud {
+    padding: 0 24px;
+    justify-content: center;
+  }
+  .hud-pill {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  header {
+    padding: calc(20px + env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 18px max(18px, env(safe-area-inset-left));
+    gap: 12px;
+  }
+  .logo-svg {
+    height: 21px;
+  }
+  .header-left {
+    gap: 12px;
+  }
+  .meta {
+    font-size: 13px;
+  }
+  .meta-secondary {
+    display: none;
+  }
+  .btn-header-link {
+    display: none;
+  }
+  .btn-try {
+    position: relative;
+    width: 92px;
+    height: 34px;
+    font-size: 13px;
+  }
+  .btn-try::after {
+    content: "";
+    position: absolute;
+    inset: -6px -10px;
+  }
+  .hero h1 {
+    top: 25%;
+    width: calc(100vw - 32px);
+    font-size: clamp(42px, 13vw, 62px);
+    line-height: 0.88;
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+  .hero p {
+    top: calc(48% + 172px);
+    width: calc(100vw - 36px);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .controller {
+    top: 48%;
+    width: calc(100vw - 36px);
+    height: 156px;
+  }
+  .track {
+    top: 0;
+    height: 156px;
+    border-radius: 28px;
+  }
+  .cells {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 48px 54px 54px;
+  }
+  .cell.label-cell {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .cell[data-index="1"], .cell[data-index="2"] {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .cell[data-index="1"], .cell[data-index="3"] {
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .cell {
+    font-size: 17px;
+    border-radius: 0;
+  }
+  .cell:focus-visible {
+    outline-offset: -3px;
+  }
+  .cell:active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .capsule {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .controller.collapsed .capsule {
+    opacity: 1;
+    left: 50%;
+    top: 4vh;
+    top: 4dvh;
+    transform: translate(-50%, -50%);
+    width: min(196px, 85vw);
+    height: 64px;
+    border-radius: 999px;
+    background: rgba(246, 251, 255, 0.18);
+    transition: opacity 420ms var(--retake-ease);
+  }
+  .slider-row {
+    grid-template-columns: 1fr;
+  }
+  .calc-sliders {
+    grid-template-columns: 1fr;
+  }
+  .calc-results {
+    grid-template-columns: 1fr;
+  }
+  .code-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .code-header > div {
+    justify-content: space-between;
+  }
+  .specs-table {
+    min-width: 600px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  header {
+    padding: calc(16px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left));
+  }
+  .logo-svg {
+    height: 18px;
+  }
+  .meta {
+    font-size: 11px;
+  }
+  .header-left {
+    gap: 8px;
+  }
+  .btn-try {
+    width: 78px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .hero h1 {
+    font-size: clamp(34px, 11vw, 44px);
+    top: 24%;
+  }
+  .hero p {
+    font-size: 12px;
+    top: calc(48% + 154px);
+    width: calc(100vw - 24px);
+  }
+  .controller {
+    width: calc(100vw - 24px);
+    height: 140px;
+  }
+  .track {
+    height: 140px;
+  }
+  .cells {
+    grid-template-rows: 40px 48px 48px;
+  }
+  .cell {
+    font-size: 14px;
+    padding: 0 4px;
+  }
+}
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 1ms !important;
+    filter: none !important;
+  }
+}

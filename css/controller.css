@@ -1,0 +1,93 @@
+/* ─── CONTROLLER BAR & CELLS (z-index: 20) ─── */
+.controller {
+  position: absolute;
+  top: 46.78%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(880px, calc(100vw - 48px));
+  height: 72px;
+  z-index: 20;
+}
+
+/* Collapsed state */
+.controller.collapsed .capsule {
+  left: calc(50% - 100px);
+  width: 200px;
+  background: rgba(246, 251, 255, 0.14);
+  transition: left 980ms var(--retake-slow-ease), width 980ms var(--retake-slow-ease), background 980ms var(--retake-slow-ease);
+}
+
+.controller.collapsed .track {
+  left: calc(50% - 96px);
+  width: 192px;
+  opacity: 0;
+  transition: left 980ms var(--retake-slow-ease), width 980ms var(--retake-slow-ease), opacity 400ms linear 650ms;
+}
+
+/* Cells */
+.cells {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  z-index: 2;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 14px;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  transition: opacity 420ms var(--retake-ease), filter 420ms var(--retake-ease), transform 980ms var(--retake-slow-ease);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.cell.label-cell {
+  cursor: default;
+  transition: opacity 300ms var(--retake-ease);
+}
+
+.controller.has-hover .cell.label-cell {
+  opacity: 0.5;
+}
+
+.cell.fade-out {
+  opacity: 0;
+  filter: blur(10px);
+  transform: scale(0.94);
+  pointer-events: none;
+}
+
+.cell.is-reset {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  animation: resetReveal 520ms var(--retake-ease) forwards;
+}
+
+@keyframes resetReveal {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+}
